@@ -52,46 +52,7 @@ public class StringUtil {
         return a.equals(b);
     }
 
-    /**
-     * 过滤html标签
-     *
-     * @param content
-     * @return
-     */
-    public static String filter(String content) {
 
-//      String temp = content.replaceAll("\\<.*?\\>", "").replaceAll("\\\n",
-//      "").replaceAll("\\\t", "").replaceAll("\\{.*?\\}", "");
-//      temp = temp.replaceAll("\\<.*?\\>", "").replaceAll("\\\n",
-//      "").replaceAll("\\\t", "").replaceAll("\\{.*?\\}", "").replaceAll("  ", "");
-//              return temp;
-        String regEx_script = "<[\\s]*?script[^>]*?>[\\s\\S]*?<[\\s]*?\\/[\\s]*?script[\\s]*?>";    // 定义script的正则表达式{或<script[^>]*?>[\\s\\S]*?<\\/script>
-        String regEx_style = "<[\\s]*?style[^>]*?>[\\s\\S]*?<[\\s]*?\\/[\\s]*?style[\\s]*?>";    // 定义style的正则表达式{或<style[^>]*?>[\\s\\S]*?<\\/style>
-        String  regEx_html = "<[^>]+>";    // 定义HTML标签的正则表达式
-        Pattern p_script   = Pattern.compile(regEx_script, Pattern.CASE_INSENSITIVE);
-        Matcher m_script;
-
-        m_script = p_script.matcher(content);
-        content  = m_script.replaceAll("");    // 过滤script标签
-
-        Pattern p_style = Pattern.compile(regEx_style, Pattern.CASE_INSENSITIVE);
-        Matcher m_style = p_style.matcher(content);
-
-        content = m_style.replaceAll("");    // 过滤style标签
-
-        Pattern p_html = Pattern.compile(regEx_html, Pattern.CASE_INSENSITIVE);
-        Matcher m_html = p_html.matcher(content);
-
-        content = m_html.replaceAll("");    // 过滤html标签
-        content = filterUnusualCharacter(content);
-
-        Pattern p_n = Pattern.compile("[\\n||\\r\\n||\\r]{2,}", Pattern.CASE_INSENSITIVE);
-        Matcher m_n = p_n.matcher(content);
-
-        content = m_n.replaceAll("\n");    // 过滤\n标签
-
-        return content;
-    }
 
     /**
      *
@@ -100,65 +61,27 @@ public class StringUtil {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        String  content  = "\n\n\n\n\n\n我们的\n\n";
-        Pattern p_n      = Pattern.compile("[\\n||\\r\\n||\\r]{2,}", Pattern.CASE_INSENSITIVE);
-        Matcher m_n      = p_n.matcher(content);
-        String  contents = m_n.replaceAll("\n");    // 过滤\n标签
+        String  content  = "[21] Y. Yang, M. Xie, T. N. Goh, Statistical Analysis of a Weibull Extension Model, Communications in Statistics Theory and Methods, Vol.32, No.5: 913-928（2003）";
 
-        System.out.println(contents);
-        content.replaceAll("#", "\n");
-        System.out.println(filter(content));
+        System.out.println(isChineseString(content));
     }
 
-    /**
-     *
-     * @param content
-     * @return
-     */
-    public static String filterUnusualCharacter(String content) {
-        content = content.replaceAll("&nbsp;", "");
-        content = content.replaceAll("&copy;", "");
-        content = content.replaceAll("&raquo;", "");
-        content = content.replaceAll("&middot;", "");
-        content = content.replaceAll("&gt;", "");
-        content = content.replaceAll("&quot;", "");
-        content = content.replaceAll("&middot;", "");
-        content = content.replaceAll(" ", "");
-
-        return content;
-    }
 
     /**
-     *
-     * @param foreSen
+     * 删除字符串开头非中英文字符
+     * @param string
      * @return
      */
-    public static String subForeSen(String foreSen) {
-        return subForeSen(foreSen, foreSen.length() - 1);
-    }
-
-    /**
-     *
-     * @param foreSen
-     * @param index
-     * @return
-     */
-    public static String subForeSen(String foreSen, int index) {
-        int start = 0;
-
-        for (int i = index - 1; i >= 0; i--) {
-            if (markHM.containsKey(foreSen.charAt(i))) {
-                if (index - 1 - i <= 3) {
-                    continue;
-                } else {
-                    start = i + 1;
-
-                    break;
-                }
+    public static String subForeSen(String string) {
+        for (int i = 0; i <string.length(); i++) {
+            char c=string.charAt(i);
+            if (isChinese(c)||isLetter(c)) {
+               string=string.substring(i);
+                return string;
             }
         }
 
-        return foreSen.substring(start);
+        return "";
     }
 
     /**
@@ -233,18 +156,36 @@ public class StringUtil {
      * 是否为中文
      *
      * @param c
-     * @return
+     * @return TODO
      */
     public static boolean isChinese(char c) {
         boolean result = false;
 
         if ((c >= 19968) && (c <= 171941)) {    // 汉字范围 \u4e00-\u9fa5 (中文)
-            if ((c != '，') && (c != '。') && (c != '！') && (c != '；')) {
+            if ((c != '，') && (c != '。') && (c != '！') && (c != '；')&& (c != '（')&& (c != '）')) {
                 result = true;
             }
         }
 
         return result;
+    }
+
+    public static boolean isChineseString(String input){
+        if(org.apache.commons.lang.StringUtils.isEmpty(input)){
+            return  false;
+        }
+
+        //字符串中中文个数
+        int num=0;
+
+        for(int i=0;i<input.length();i++){
+            char c=input.charAt(i);
+            if(isChinese(c)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // public static boolean isChinese(char c) {

@@ -20,12 +20,14 @@ import java.util.regex.Pattern;
  */
 @Service("ExtractService")
 public class ExtractServiceImpl implements ExtractService {
+
+    private  static final  int  MAX_LENGTH=200;
     @Autowired
     private ExtractContext extractContext;
 
-   /* public String extractContext(String filePath) throws IOException, TikaException {
-        return extractContext.extractTxt(filePath);
-    }*/
+    /* public String extractContext(String filePath) throws IOException, TikaException {
+         return extractContext.extractTxt(filePath);
+     }*/
 //   public List<String> extractRef(String filePath) throws IOException, TikaException {
 //
 //       List<String> references = Lists.newArrayList();
@@ -76,7 +78,7 @@ public class ExtractServiceImpl implements ExtractService {
     /**
      * 对参考文献进行二次处理
      * @param references
-     * @return
+     * @return   TODO
      */
     private List<String> resolve(List<String> references){
 
@@ -88,9 +90,9 @@ public class ExtractServiceImpl implements ExtractService {
             //判断但前是否含有其他字符串
             if(!matcherIndex(line1)) {  //未匹配说明含有其他字符串
 
-               continue; // 跳过当前
+                continue; // 跳过当前
             }else {
-               temp=line1;
+                temp=line1;
             }
 
             for (int j=i+1;j<references.size();j++){
@@ -98,14 +100,20 @@ public class ExtractServiceImpl implements ExtractService {
                 if (!matcherIndex(line2)){ //当前line2行不包含［0-99］
                     temp+=line2;
                 }else{
+
                     temp=removeIndex2Else(temp);
-                    modifiedReferences.add(temp);
+                    if (temp.length()<MAX_LENGTH) {
+                        modifiedReferences.add(temp);
+                    } //太长（直接抛弃）
                     i=j-1;
                     break;
                 }
                 if(j==references.size()-1) {//最后一行
                     temp=removeIndex2Else(temp);
-                    modifiedReferences.add(temp);
+                    if (temp.length()<MAX_LENGTH) {
+                        modifiedReferences.add(temp);
+                    } //太长（直接抛弃）
+
                 }
             }
 
@@ -121,7 +129,7 @@ public class ExtractServiceImpl implements ExtractService {
     private boolean matcherIndex(String str){
 
         //匹配[1]|[ 1]|[1 ]|[ 1 ]
-        Pattern p = Pattern.compile("(.*)(\\[)(\\d+)(\\])(.*)|(.*)(\\[ )(\\d+)(\\])(.*)|(.*)(\\[)(\\d+)(\\ ])(.*)|(.*)(\\[ )(\\d+)(\\ ])(.*)");
+        Pattern p = Pattern.compile("(\\s*)(\\[s*)(\\d+)(\\s*])(.*)");
         Matcher matcher=p.matcher(str);
         return  matcher.matches();
 
@@ -130,19 +138,20 @@ public class ExtractServiceImpl implements ExtractService {
     /**
      * 去掉参考文献的下标［1］
      * @param str
-     * @return
+     * @return  TODO
      */
     private String removeIndex2Else(String str){
 
         //1. 先去掉参考文献的下标
-       str=str.replaceAll("(\\[)(\\d+)(\\]  )|(\\[ )(\\d+)(\\]  )|(\\[)(\\d+)(\\ ]  )|(\\[ )(\\d+)(\\ ]  )", "");
-       //2. 去掉期刊页号，之后没有用的内容
-         //中文－ 或者英文-
-        Pattern pattern=Pattern.compile("(.*)(\\d+)(-)(\\d+)(\\.)|(.*)(\\d+)(−)(\\d+)(\\.)");
+        str=str.replaceAll("(\\s*)(\\[s*)(\\d+)(\\s*])(\\s*)", "");
+
+        //2. 去掉期刊页号，之后没有用的内容
+        //中文－ 或者英文-  (此处还有问题：存在)
+        Pattern pattern=Pattern.compile("(.*)(\\d+)(-)(\\d+)|(.*)(\\d+)(–)(\\d+)");
         Matcher matcher=pattern.matcher(str);
 
         if (matcher.lookingAt()) { //此处用lookingAt 不用matcher
-           str=str.substring(matcher.start(),matcher.end());
+            str=str.substring(matcher.start(),matcher.end());
         }
 
         return  str;
