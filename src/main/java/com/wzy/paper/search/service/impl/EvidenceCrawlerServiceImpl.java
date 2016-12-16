@@ -86,8 +86,11 @@ public class EvidenceCrawlerServiceImpl implements EvidenceCrawlerService {
 
         article.setLink(link);
 
-        // 直接在百度学术搜索获得的信息，可能不全面，需通过文章链接获取更详细的信息
-        Document doc = Jsoup.connect(link).get();
+        //直接在百度学术搜索获得的信息，可能不全面，需通过文章链接获取更详细的信息
+        Document doc = Jsoup.connect(link) // 设置代理伪装成浏览器
+                .header("User-Agent","Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2")
+                .timeout(10000)
+                .get();
 
         if (doc == null) {
             return null;

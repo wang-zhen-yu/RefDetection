@@ -9,6 +9,7 @@ import org.jsoup.nodes.Document;
 
 public class RuleUtil {
 
+    public static  final  int TIME_OUT=10000;//10秒
     public static Rule rule;
 
 
@@ -50,10 +51,15 @@ public class RuleUtil {
             // 设置请求类型
             switch (requestType) {
                 case Rule.GET:
-                    doc = conn.timeout(100000).get();
+                    doc = conn.timeout(TIME_OUT)  // 设置代理伪装成浏览器
+                            .header("User-Agent","Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2")
+                            .get();
                     break;
                 case Rule.POST:
-                    doc = conn.timeout(100000).post();
+                    doc = conn.timeout(TIME_OUT)  // 设置代理伪装成浏览器
+                            .header("User-Agent","Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2")
+                            //.post(); //不能获取
+                            .get();
                     break;
             }
 

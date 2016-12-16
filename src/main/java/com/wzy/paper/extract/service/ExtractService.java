@@ -17,12 +17,12 @@ public interface ExtractService {
      * @param filePath 文本路径
      * @return
      */
-    String extractContext(String filePath) throws IOException, TikaException;
+    //String extractContext(String filePath) throws IOException, TikaException;
 
     /**
      * 从文本中提取参考文献部分
-     * @param context
+     * @param filePath
      * @return
      */
-    List<String> extractRef(String context);
+    List<String> extractRef(String filePath) throws IOException, TikaException;
 }

@@ -18,7 +18,7 @@ public class ClientFactory {
 			String clusterName ="elasticsearch";
 			String _clientTransportSniff =  "true";
 			String _port =  "9300";
-			String hostname =  "127.0.0.1";
+			String hostname =  "192.168.1.102";
 			String hostnames[] = hostname.split(",");
 			
 			boolean clientTransportSniff = false;
